@@ -1,0 +1,38 @@
+{
+    "name": "lotgd/module-new-day",
+    "description": "A new day module.",
+    "type": "lotgd-module",
+    "license": "AGPL-3.0",
+    "authors": [
+        {
+            "name": "Basilius Sauter",
+            "email": "basilius.sauter@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "LotGD\\Module\\NewDay\\": "src/"
+        }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/lotgd/core.git"
+        },
+        {
+            "type": "composer",
+            "url": "http://code.lot.gd"
+        }
+    ],
+    "require": {
+        "lotgd/core": "dev-feature/viewpoint-restoration as 0.2-alpha",
+        "lotgd/module-village": "^0.2-alpha"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.0",
+        "phpunit/dbunit": "^2.0"
+    },
+    "config": {
+        "secure-http": false
+    }
+}
