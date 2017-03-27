@@ -1092,12 +1092,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/lotgd/core.git",
-                "reference": "d408aa07554240fe0e3ef48e00bec14d873aa216"
+                "reference": "a739aed94ac25c0eb1bcee25d88ea562b3fa957c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lotgd/core/zipball/d408aa07554240fe0e3ef48e00bec14d873aa216",
-                "reference": "d408aa07554240fe0e3ef48e00bec14d873aa216",
+                "url": "https://api.github.com/repos/lotgd/core/zipball/a739aed94ac25c0eb1bcee25d88ea562b3fa957c",
+                "reference": "a739aed94ac25c0eb1bcee25d88ea562b3fa957c",
                 "shasum": ""
             },
             "require": {
@@ -1133,7 +1133,7 @@
                 "source": "https://github.com/lotgd/core/tree/feature/viewpoint-restoration",
                 "issues": "https://github.com/lotgd/core/issues"
             },
-            "time": "2017-03-24 15:32:38"
+            "time": "2017-03-27 07:52:09"
         },
         {
             "name": "lotgd/module-village",

@@ -54,8 +54,9 @@ class Module implements ModuleInterface {
     private static function handleNavigationToRestorationPoint(Game $g, string $event, Viewpoint $viewpoint)
     {
         // restore the old viewpoint
-        print("Restoration point reached.");
-        $viewpoint->changeFromRestorationPoint($g->getCharacter()->getProperty(self::CharacterPropertyViewpointRestoration));
+        $viewpoint->changeFromRestorationPoint(
+            $g->getCharacter()->getProperty(self::CharacterPropertyViewpointRestoration)
+        );
     }
 
     /**
