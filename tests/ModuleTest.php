@@ -41,38 +41,26 @@ class ModuleTest extends ModelTestCase
         // Register and unregister before/after each test, since
         // handleEvent() calls may expect the module be registered (for example,
         // if they read properties from the model).
-        $this->g->getModuleManager()->register($this->getConfigurationMock());
+        $this->moduleModel = new ModuleModel(self::Library);
+        $this->moduleModel->save($this->getEntityManager());
+        Module::onRegister($this->g, $this->moduleModel);
+
         $this->g->getEntityManager()->flush();
         $this->g->getEntityManager()->clear();
     }
 
-    protected function getConfigurationMock()
-    {
-        $configurationMock = $this->createMock(LibraryConfiguration::class);
-        $configurationMock->method("getName")->willReturn("lotgd/module-new-day");
-        $configurationMock->method("getRootNamespace")->willReturn(self::RootNamespace);
-        $configurationMock->method("getsubscriptionpatterns")->willReturnCallback(function(){
-            $config = \Symfony\Component\Yaml\Yaml::parse(file_get_contents(__DIR__ . "/../lotgd.yml"));
-            return $config["subscriptionPatterns"];
-        });
-
-        return $configurationMock;
-    }
-
     public function tearDown()
     {
+        $this->g->getEntityManager()->flush();
+        $this->g->getEntityManager()->clear();
+
         parent::tearDown();
 
-        try {
-            $this->g->getModuleManager()->unregister($this->getConfigurationMock());
-        } catch(Exception $e) {
-
+        Module::onUnregister($this->g, $this->moduleModel);
+        $m = $this->getEntityManager()->getRepository(ModuleModel::class)->find(self::Library);
+        if ($m) {
+            $m->delete($this->getEntityManager());
         }
-    }
-
-    protected function getModuleModel()
-    {
-        return $this->getEntityManager()->getRepository(ModuleModel::class)->findOneBy(["library" => self::Library]);
     }
 
     // TODO for LotGD staff: this test assumes the schema in their yaml file
@@ -81,18 +69,23 @@ class ModuleTest extends ModelTestCase
     // will break.
     public function testUnregister()
     {
-        //Module::onUnregister($this->g, $this->getModuleModel());
-        //$m = $this->getEntityManager()->getRepository(ModuleModel::class)->find(self::Library);
-        //$m->delete($this->getEntityManager());
-        $this->g->getModuleManager()->unregister($this->getConfigurationMock());
+        Module::onUnregister($this->g, $this->moduleModel);
+        $m = $this->getEntityManager()->getRepository(ModuleModel::class)->find(self::Library);
+        $m->delete($this->getEntityManager());
 
         // Assert that databases are the same before and after.
         // TODO for module author: update list of tables below to include the
         // tables you modify during registration/unregistration.
-        $after = $this->getConnection()->createDataSet(['characters', 'scenes', 'scene_connections', 'modules', 'module_properties', 'event_subscriptions']);
+        $tableList = [
+            'characters', 'scenes', 'modules', 'scene_connections', "module_properties"
+        ];
+
+        $after = $this->getConnection()->createDataSet($tableList);
         $before = $this->getDataSet();
 
-        $this->assertDataSetsEqual($before, $after);
+        foreach($tableList as $table) {
+            $this->assertSame($before->getTable($table)->getRowCount(), $after->getTable($table)->getRowCount());
+        }
 
         // Since tearDown() contains an onUnregister() call, this also tests
         // double-unregistering, which should be properly supported by modules.
@@ -101,8 +94,14 @@ class ModuleTest extends ModelTestCase
     public function testHandleUnknownEvent()
     {
         // Always good to test a non-existing event just to make sure nothing happens :).
-        $context = [];
-        Module::handleEvent($this->g, 'e/lotgd/tests/unknown-event', $context);
+        // Always good to test a non-existing event just to make sure nothing happens :).
+        $context = new \LotGD\Core\Events\EventContext(
+            "e/lotgd/tests/unknown-event",
+            "none",
+            \LotGD\Core\Events\EventContextData::create([])
+        );
+
+        Module::handleEvent($this->g, $context);
     }
 
     public function testNavigateToEvent()

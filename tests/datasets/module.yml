@@ -39,3 +39,7 @@ event_subscriptions:
         pattern: "/h\\/lotgd\\/core\\/default-scene/"
         class: "LotGD\\Module\\Village\\Module"
         library: "lotgd/module-village"
+    -
+        pattern: "#h/lotgd/core/navigate-to/*#"
+        class: "LotGD\\Module\\NewDay\\Module"
+        library: "lotgd/module-new-day"

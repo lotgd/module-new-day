@@ -5,6 +5,7 @@ namespace LotGD\Module\NewDay;
 
 use DateTime;
 use LotGD\Core\Game;
+use LotGD\Core\Events\EventContext;
 use LotGD\Core\Models\Scene;
 use LotGD\Core\Models\Viewpoint;
 use LotGD\Core\Module as ModuleInterface;
@@ -18,65 +19,76 @@ class Module implements ModuleInterface {
     const SceneRestoration = MODULE ."/restoration#!noNewDay!";
     const ModulePropertySceneId = MODULE ."/sceneIds";
     const CharacterPropertyLastNewDay = MODULE . "/lastNewDay";
-    const CharacterPropertyViewpointRestoration = MODULE . "/viewpointRestoration";
+    const CharacterPropertyViewpointSnapshot = MODULE . "/viewpointSnapshot";
 
-    public static function handleEvent(Game $g, string $event, array &$context)
+    public static function handleEvent(Game $g, EventContext $context): EventContext
     {
         $subscription = "h/lotgd/core/navigate-to";
+        $event = $context->getEvent();
 
         if ($event === $subscription . "/" . self::SceneNewDay) {
-            self::handleNavigationToNewDay($g, $event, $context["viewpoint"]);
+            return self::handleNavigationToNewDay($g, $context);
         } elseif ($event === $subscription . "/" . self::SceneRestoration) {
-            self::handleNavigationToRestorationPoint($g, $event, $context["viewpoint"]);
+            return self::handleNavigationToRestorationPoint($g, $context);
         } elseif (substr($event, 0, strlen($subscription)) === $subscription and strpos($event, "!noNewDay!") === false) {
-            self::handleNavigationToAny($g, $event, $context["viewpoint"], $context);
+            return self::handleNavigationToAny($g, $context);
         }
+
+        return $context;
     }
 
     /**
      * Handles the navigation to a new day which is usually happening in a redirection context.
      * @param Game $g
-     * @param string $event
-     * @param Viewpoint $viewpoint
+     * @param EventContext $context
+     * @return EventContext
      */
-    private static function handleNavigationToNewDay(Game $g, string $event, Viewpoint $viewpoint)
+    private static function handleNavigationToNewDay(Game $g, EventContext $context): EventContext
     {
         // do everything for the new day.
         $g->getCharacter()->setProperty(self::CharacterPropertyLastNewDay, new DateTime());
+
+        return $context;
     }
 
     /**
      * Handles the navigation to a restoration point, usually by taking a direct action from the new day.
      * @param Game $g
-     * @param string $event
-     * @param Viewpoint $viewpoint
+     * @param EventContext $context
+     * @return EventContext
      */
-    private static function handleNavigationToRestorationPoint(Game $g, string $event, Viewpoint $viewpoint)
+    private static function handleNavigationToRestorationPoint(Game $g, EventContext $context): EventContext
     {
         // restore the old viewpoint
-        $viewpoint->changeFromRestorationPoint(
-            $g->getCharacter()->getProperty(self::CharacterPropertyViewpointRestoration)
+        $context->getDataField("viewpoint")->changeFromSnapshot(
+            $g->getCharacter()->getProperty(self::CharacterPropertyViewpointSnapshot)
         );
+
+        return $context;
     }
 
     /**
      * Tries to catch *every* navigation and redirects to a new day.
      * @param Game $g
-     * @param string $event
-     * @param Viewpoint $viewpoint
-     * @param array $context
+     * @param EventContext $context
+     * @return EventContext
      */
-    private static function handleNavigationToAny(Game $g, string $event, Viewpoint $viewpoint, array &$context)
+    private static function handleNavigationToAny(Game $g, EventContext $context): EventContext
     {
         $lastNewDay = $g->getCharacter()->getProperty(self::CharacterPropertyLastNewDay);
 
         if ($lastNewDay === null or $g->getTimeKeeper()->isNewDay($lastNewDay)) {
-            $viewpointRestoration = $viewpoint->getRestorationPoint();
-            $g->getCharacter()->setProperty(self::CharacterPropertyViewpointRestoration, $viewpointRestoration);
+            $viewpointSnapshot = $context->getDataField("viewpoint")->getSnapshot();
+            $g->getCharacter()->setProperty(self::CharacterPropertyViewpointSnapshot, $viewpointSnapshot);
 
             // Set new scene - good would be to have module context here, too.
-            $context["redirect"] = $g->getEntityManager()->getRepository(Scene::class)->findOneBy(["template" => self::SceneNewDay]);
+            $context->setDataField(
+                "redirect",
+                $g->getEntityManager()->getRepository(Scene::class)->findOneBy(["template" => self::SceneNewDay])
+            );
         }
+
+        return $context;
     }
 
     public static function onRegister(Game $g, ModuleModel $module)
@@ -117,7 +129,7 @@ class Module implements ModuleInterface {
             $g->getEntityManager()->getRepository(Scene::class)->find($sceneIds[self::SceneRestoration])->delete($g->getEntityManager());
 
             // set property to null
-            $module->getProperty(self::ModulePropertySceneId, null);
+            $module->setProperty(self::ModulePropertySceneId, null);
         }
     }
 
