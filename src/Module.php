@@ -20,6 +20,7 @@ class Module implements ModuleInterface {
     const ModulePropertySceneId = MODULE ."/sceneIds";
     const CharacterPropertyLastNewDay = MODULE . "/lastNewDay";
     const CharacterPropertyViewpointSnapshot = MODULE . "/viewpointSnapshot";
+    const HookBeforeNewDay = "h/" . MODULE . "/before";
 
     public static function handleEvent(Game $g, EventContext $context): EventContext
     {
@@ -86,6 +87,9 @@ class Module implements ModuleInterface {
                 "redirect",
                 $g->getEntityManager()->getRepository(Scene::class)->findOneBy(["template" => self::SceneNewDay])
             );
+
+            // This hook allows modules to catch the redirect and redirect to somewhere else (eg, race selection)
+            $context = $g->getEventManager()->publish("h/lotgd/module/new-day/before", $context);
         }
 
         return $context;
