@@ -15,24 +15,71 @@ const MODULE = "lotgd/module-new-day";
 
 class Module implements ModuleInterface {
     const Module = MODULE;
-    const SceneNewDay = MODULE . "/newDay#!noNewDay!";
-    const SceneRestoration = MODULE ."/restoration#!noNewDay!";
+    const SceneNewDay = MODULE . "/newDay";
+    const SceneRestoration = MODULE ."/restoration";
+    const SceneContinue = MODULE . "/continue";
     const ModulePropertySceneId = MODULE ."/sceneIds";
+    const CharacterPropertyIgnoreCatchAll = MODULE . "/ignoreCatchAll";
     const CharacterPropertyLastNewDay = MODULE . "/lastNewDay";
+    const CharacterPropertyNewDayPosition = MODULE . "/position";
     const CharacterPropertyViewpointSnapshot = MODULE . "/viewpointSnapshot";
     const HookBeforeNewDay = "h/" . MODULE . "/before";
+    const HookAfterNewDay = "h/" . MODULE . "/after";
+
+    const PositionNone = 0;
+    const PositionBeforeNewDay = 1;
+    const PositionAfterNewDay = 2;
 
     public static function handleEvent(Game $g, EventContext $context): EventContext
     {
         $subscription = "h/lotgd/core/navigate-to";
         $event = $context->getEvent();
 
-        if ($event === $subscription . "/" . self::SceneNewDay) {
-            return self::handleNavigationToNewDay($g, $context);
-        } elseif ($event === $subscription . "/" . self::SceneRestoration) {
-            return self::handleNavigationToRestorationPoint($g, $context);
-        } elseif (substr($event, 0, strlen($subscription)) === $subscription and strpos($event, "!noNewDay!") === false) {
-            return self::handleNavigationToAny($g, $context);
+        $position = $g->getCharacter()->getProperty(self::CharacterPropertyNewDayPosition, self::PositionNone);
+
+        if ($event === $subscription . "/" . self::SceneContinue) {
+            $skip = false;
+            $g->getCharacter()->setProperty(self::CharacterPropertyIgnoreCatchAll, false);
+        } else {
+            $skip = $g->getCharacter()->getProperty(self::CharacterPropertyIgnoreCatchAll, false);
+        }
+
+        if ($skip) {
+            return $context;
+        }
+
+        if ($position === 0 and substr($event, 0, strlen($subscription)) === $subscription) {
+            $context = self::handleNavigationToAny($g, $context);
+
+            // We must fetch the position again since it could change within handleNavigationToAny, but doesn't need to.
+            $position = $g->getCharacter()->getProperty(self::CharacterPropertyNewDayPosition, self::PositionNone);
+        }
+
+        if ($position === 1) {
+            $hookData = $g->getEventManager()->publish(
+                self::HookBeforeNewDay,
+                new EventNewDayData(["redirect" => 0])
+            );
+
+            $redirect = $hookData->get("redirect");
+            if ($redirect === 0) {
+                $redirect = $g->getEntityManager()->getRepository(Scene::class)->findOneBy(["template" => self::SceneNewDay]);
+            } else {
+                $g->getCharacter()->setProperty(self::CharacterPropertyIgnoreCatchAll, true);
+            }
+
+            // redirects either to the new day or to a different target (like race selection)
+            $context->setDataField("redirect", $redirect);
+
+            if ($event === $subscription . "/" . self::SceneNewDay) {
+                $context = self::handleNavigationToNewDay($g, $context);
+            }
+        }
+
+        if ($position === 2) {
+            if ($event === $subscription . "/" . self::SceneRestoration) {
+                $context = self::handleNavigationToRestorationPoint($g, $context);
+            }
         }
 
         return $context;
@@ -48,6 +95,7 @@ class Module implements ModuleInterface {
     {
         // do everything for the new day.
         $g->getCharacter()->setProperty(self::CharacterPropertyLastNewDay, new DateTime());
+        $g->getCharacter()->setProperty(self::CharacterPropertyNewDayPosition, self::PositionAfterNewDay);
 
         return $context;
     }
@@ -65,6 +113,9 @@ class Module implements ModuleInterface {
             $g->getCharacter()->getProperty(self::CharacterPropertyViewpointSnapshot)
         );
 
+        $g->getCharacter()->setProperty(self::CharacterPropertyViewpointSnapshot, null);
+        $g->getCharacter()->setProperty(self::CharacterPropertyNewDayPosition, self::PositionNone);
+
         return $context;
     }
 
@@ -81,15 +132,7 @@ class Module implements ModuleInterface {
         if ($lastNewDay === null or $g->getTimeKeeper()->isNewDay($lastNewDay)) {
             $viewpointSnapshot = $context->getDataField("viewpoint")->getSnapshot();
             $g->getCharacter()->setProperty(self::CharacterPropertyViewpointSnapshot, $viewpointSnapshot);
-
-            // Set new scene - good would be to have module context here, too.
-            $context->setDataField(
-                "redirect",
-                $g->getEntityManager()->getRepository(Scene::class)->findOneBy(["template" => self::SceneNewDay])
-            );
-
-            // This hook allows modules to catch the redirect and redirect to somewhere else (eg, race selection)
-            $context = $g->getEventManager()->publish("h/lotgd/module/new-day/before", $context);
+            $g->getCharacter()->setProperty(self::CharacterPropertyNewDayPosition, self::PositionBeforeNewDay);
         }
 
         return $context;

@@ -11,7 +11,8 @@
     ],
     "autoload": {
         "psr-4": {
-            "LotGD\\Module\\NewDay\\": "src/"
+            "LotGD\\Module\\NewDay\\": "src/",
+            "LotGD\\Module\\NewDay\\Tests\\": "tests/"
         }
     },
     "repositories": [

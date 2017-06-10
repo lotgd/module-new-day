@@ -1,0 +1,49 @@
+characters:
+    -
+        id: 1
+        name: "Gandalf"
+        displayName: "Gandalf the Grey"
+        maxHealth: 100
+        health: 90
+        level: 1
+        deletedAt:
+scenes:
+    -
+        id: 1
+        title: "Village"
+        description: "You arrive in a village."
+        template: 'lotgd/module-village/village'
+    -
+        id: 2
+        title: "Another Scene"
+        description: "You arrive at another scene."
+        template: "lotgd/test/another"
+scene_connections:
+    -
+        directionality: 0
+        outgoingConnectionGroupName:
+        incomingConnectionGroupName:
+        outgoingScene: 2
+        incomingScene: 1
+modules:
+    -
+        library: 'lotgd/module-village'
+        createdAt: "2016-03-06"
+module_properties:
+    -
+        owner: "lotgd/module-village"
+        propertyName: "lotgd/module-village/scenes"
+        propertyValue: "i:1;"
+event_subscriptions:
+    -
+        pattern: "/h\\/lotgd\\/core\\/default-scene/"
+        class: "LotGD\\Module\\Village\\Module"
+        library: "lotgd/module-village"
+    -
+        pattern: "#h/lotgd/core/navigate-to/*#"
+        class: "LotGD\\Module\\NewDay\\Module"
+        library: "lotgd/module-new-day"
+    -
+        pattern: "#h/lotgd/module-new-day/before#"
+        class: "LotGD\\Module\\NewDay\\Tests\\EventHandlers\\BeforeNewDayHandler"
+        library: "lotgd/module-new-day"
