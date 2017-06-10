@@ -13,11 +13,25 @@ use LotGD\Core\Models\Module as ModuleModel;
 
 use LotGD\Module\NewDay\Module;
 
-trait ModuleTestCase
+class ModuleTestCase extends ModelTestCase
 {
+    const Library = 'lotgd/module-new-day';
+    const RootNamespace = "LotGD\\Module\\NewDay\\";
+
+    protected $g;
+    protected $moduleModel;
+
+    protected function getDataSet(): \PHPUnit_Extensions_Database_DataSet_YamlDataSet
+    {
+        return new \PHPUnit_Extensions_Database_DataSet_YamlDataSet(implode(DIRECTORY_SEPARATOR, [__DIR__, 'datasets', $this->dataset . '.yml']));
+    }
+
     public function setUp()
     {
         parent::setUp();
+
+        $this->getEntityManager()->flush();
+        $this->getEntityManager()->clear();
 
         // Make an empty logger for these tests. Feel free to change this
         // to place log messages somewhere you can easily find them.

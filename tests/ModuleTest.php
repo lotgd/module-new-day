@@ -7,24 +7,13 @@ namespace LotGD\Module\NewDay\Tests;
 use LotGD\Core\Game;
 use LotGD\Core\Models\Character;
 use LotGD\Core\Models\Module as ModuleModel;
-use LotGD\Core\Tests\ModelTestCase;
 
 use LotGD\Module\NewDay\Module;
 
-class ModuleTest extends ModelTestCase
+class ModuleTest extends ModuleTestCase
 {
-    use ModuleTestCase;
+    protected $dataset = "module";
 
-    const Library = 'lotgd/module-new-day';
-    const RootNamespace = "LotGD\\Module\\NewDay\\";
-
-    protected $g;
-    protected $moduleModel;
-
-    protected function getDataSet(): \PHPUnit_Extensions_Database_DataSet_YamlDataSet
-    {
-        return new \PHPUnit_Extensions_Database_DataSet_YamlDataSet(implode(DIRECTORY_SEPARATOR, [__DIR__, 'datasets', 'module.yml']));
-    }
 
     // TODO for LotGD staff: this test assumes the schema in their yaml file
     // reflects all columns in the core's models of characters, scenes and modules.

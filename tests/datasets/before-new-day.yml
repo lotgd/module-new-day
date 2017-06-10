@@ -1,6 +1,6 @@
 characters:
     -
-        id: 1
+        id: 2
         name: "Gandalf"
         displayName: "Gandalf the Grey"
         maxHealth: 100
