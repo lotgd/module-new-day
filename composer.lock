@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "5d258740bd05270ce1daa7900e3748d8",
+    "content-hash": "3371739265045479517db432a9814075",
     "packages": [
         {
             "name": "behat/transliterator",
@@ -1092,16 +1092,16 @@
         },
         {
             "name": "lotgd/core",
-            "version": "v0.3.0-alpha",
+            "version": "v0.3.1-alpha",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lotgd/core.git",
-                "reference": "bbc960fd3d721bdd40dd7d0758ab1ec0aa403a20"
+                "reference": "867843dddd9960f2c2b4f65b47ea5c72b0d48d42"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lotgd/core/zipball/bbc960fd3d721bdd40dd7d0758ab1ec0aa403a20",
-                "reference": "bbc960fd3d721bdd40dd7d0758ab1ec0aa403a20",
+                "url": "https://api.github.com/repos/lotgd/core/zipball/867843dddd9960f2c2b4f65b47ea5c72b0d48d42",
+                "reference": "867843dddd9960f2c2b4f65b47ea5c72b0d48d42",
                 "shasum": ""
             },
             "require": {
@@ -1134,10 +1134,10 @@
             ],
             "description": "Core functionality for Legend of the Green Dragon, a text-based RPG game.",
             "support": {
-                "source": "https://github.com/lotgd/core/tree/v0.3.0-alpha",
+                "source": "https://github.com/lotgd/core/tree/v0.3.1-alpha",
                 "issues": "https://github.com/lotgd/core/issues"
             },
-            "time": "2017-04-25T20:31:37+00:00"
+            "time": "2017-06-23T12:43:24+00:00"
         },
         {
             "name": "lotgd/module-village",
@@ -1187,16 +1187,16 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "1.22.1",
+            "version": "1.23.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "1e044bc4b34e91743943479f1be7a1d5eb93add0"
+                "reference": "fd8c787753b3a2ad11bc60c063cff1358a32a3b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/1e044bc4b34e91743943479f1be7a1d5eb93add0",
-                "reference": "1e044bc4b34e91743943479f1be7a1d5eb93add0",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/fd8c787753b3a2ad11bc60c063cff1358a32a3b4",
+                "reference": "fd8c787753b3a2ad11bc60c063cff1358a32a3b4",
                 "shasum": ""
             },
             "require": {
@@ -1217,7 +1217,7 @@
                 "phpunit/phpunit-mock-objects": "2.3.0",
                 "ruflin/elastica": ">=0.90 <3.0",
                 "sentry/sentry": "^0.13",
-                "swiftmailer/swiftmailer": "~5.3"
+                "swiftmailer/swiftmailer": "^5.3|^6.0"
             },
             "suggest": {
                 "aws/aws-sdk-php": "Allow sending log messages to AWS services like DynamoDB",
@@ -1261,7 +1261,7 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2017-03-13T07:08:03+00:00"
+            "time": "2017-06-19T01:22:40+00:00"
         },
         {
             "name": "psr/log",
@@ -1360,16 +1360,16 @@
         },
         {
             "name": "seld/jsonlint",
-            "version": "1.6.0",
+            "version": "1.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/jsonlint.git",
-                "reference": "791f8c594f300d246cdf01c6b3e1e19611e301d8"
+                "reference": "50d63f2858d87c4738d5b76a7dcbb99fa8cf7c77"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/jsonlint/zipball/791f8c594f300d246cdf01c6b3e1e19611e301d8",
-                "reference": "791f8c594f300d246cdf01c6b3e1e19611e301d8",
+                "url": "https://api.github.com/repos/Seldaek/jsonlint/zipball/50d63f2858d87c4738d5b76a7dcbb99fa8cf7c77",
+                "reference": "50d63f2858d87c4738d5b76a7dcbb99fa8cf7c77",
                 "shasum": ""
             },
             "require": {
@@ -1405,7 +1405,7 @@
                 "parser",
                 "validator"
             ],
-            "time": "2017-03-06T16:42:24+00:00"
+            "time": "2017-06-18T15:11:04+00:00"
         },
         {
             "name": "seld/phar-utils",
@@ -2396,16 +2396,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "5.7.20",
+            "version": "5.7.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "3cb94a5f8c07a03c8b7527ed7468a2926203f58b"
+                "reference": "3b91adfb64264ddec5a2dee9851f354aa66327db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/3cb94a5f8c07a03c8b7527ed7468a2926203f58b",
-                "reference": "3cb94a5f8c07a03c8b7527ed7468a2926203f58b",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/3b91adfb64264ddec5a2dee9851f354aa66327db",
+                "reference": "3b91adfb64264ddec5a2dee9851f354aa66327db",
                 "shasum": ""
             },
             "require": {
@@ -2474,7 +2474,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-05-22T07:42:55+00:00"
+            "time": "2017-06-21T08:11:54+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",

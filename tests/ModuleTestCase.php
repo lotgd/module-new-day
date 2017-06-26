@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace LotGD\Module\NewDay\Tests;
 
+use LotGD\Core\GameBuilder;
 use Monolog\Logger;
 use Monolog\Handler\NullHandler;
 
@@ -39,7 +40,12 @@ class ModuleTestCase extends ModelTestCase
         $logger->pushHandler(new NullHandler());
 
         // Create a Game object for use in these tests.
-        $this->g = new Game(new Configuration(getenv('LOTGD_TESTS_CONFIG_PATH')), $logger, $this->getEntityManager(), implode(DIRECTORY_SEPARATOR, [__DIR__, '..']));
+        $this->g = (new GameBuilder())
+            ->withConfiguration(new Configuration(getenv('LOTGD_TESTS_CONFIG_PATH')))
+            ->withLogger($logger)
+            ->withEntityManager($this->getEntityManager())
+            ->withCwd(implode(DIRECTORY_SEPARATOR, [__DIR__, '..']))
+            ->create();
 
         // Register and unregister before/after each test, since
         // handleEvent() calls may expect the module be registered (for example,
