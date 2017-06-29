@@ -144,15 +144,17 @@ class Module implements ModuleInterface {
         $sceneIds = $module->getProperty(self::ModulePropertySceneId);
 
         if ($sceneIds === null) {
-            [$newDayScene, $restorationScene] = self::getScenes();
+            [$newDayScene, $restorationScene, $continueScene] = self::getScenes();
 
             $g->getEntityManager()->persist($newDayScene);
             $g->getEntityManager()->persist($restorationScene);
+            $g->getEntityManager()->persist($continueScene);
             $g->getEntityManager()->flush();
 
             $module->setProperty(self::ModulePropertySceneId, [
                 self::SceneNewDay => $newDayScene->getId(),
-                self::SceneRestoration => $restorationScene->getId()
+                self::SceneRestoration => $restorationScene->getId(),
+                self::SceneContinue => $continueScene->getId()
             ]);
 
             // logging
@@ -160,7 +162,8 @@ class Module implements ModuleInterface {
                 "%s: Adds scenes (newday: %s, restoration: %s)",
                 self::Module,
                 $newDayScene->getId(),
-                $restorationScene->getId()
+                $restorationScene->getId(),
+                $continueScene->getId()
             ));
         }
     }
@@ -174,6 +177,7 @@ class Module implements ModuleInterface {
             // delete village
             $g->getEntityManager()->getRepository(Scene::class)->find($sceneIds[self::SceneNewDay])->delete($g->getEntityManager());
             $g->getEntityManager()->getRepository(Scene::class)->find($sceneIds[self::SceneRestoration])->delete($g->getEntityManager());
+            $g->getEntityManager()->getRepository(Scene::class)->find($sceneIds[self::SceneContinue])->delete($g->getEntityManager());
 
             // set property to null
             $module->setProperty(self::ModulePropertySceneId, null);
@@ -191,12 +195,18 @@ class Module implements ModuleInterface {
 
         $restorationScene = Scene::create([
             "template" => self::SceneRestoration,
+            "title" => "Restoration",
+            "description" => "You should not be able to see this text if everything works, this scene should restore your viewpoint."
+        ]);
+
+        $continueScene = Scene::create([
+            "template" => self::SceneContinue,
             "title" => "Continue",
-            "description" => "You should not be able to see this text if everything works."
+            "description" => "You should not be able to see this text if everything works, this is for internal work only."
         ]);
 
         $newDayScene->connect($restorationScene, Scene::Unidirectional);
 
-        return [$newDayScene, $restorationScene];
+        return [$newDayScene, $restorationScene, $continueScene];
     }
 }
