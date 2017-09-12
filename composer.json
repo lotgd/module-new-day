@@ -17,10 +17,6 @@
     },
     "repositories": [
         {
-            "type": "vcs",
-            "url": "https://github.com/lotgd/core.git"
-        },
-        {
             "type": "composer",
             "url": "http://code.lot.gd"
         }

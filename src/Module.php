@@ -195,7 +195,7 @@ class Module implements ModuleInterface {
 
         $restorationScene = Scene::create([
             "template" => self::SceneRestoration,
-            "title" => "Restoration",
+            "title" => "Continue",
             "description" => "You should not be able to see this text if everything works, this scene should restore your viewpoint."
         ]);
 
