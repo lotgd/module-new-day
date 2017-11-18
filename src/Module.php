@@ -65,16 +65,19 @@ class Module implements ModuleInterface {
             $redirect = $hookData->get("redirect");
 
             if ($redirect === 0) {
-                $redirect = $g->getEntityManager()->getRepository(Scene::class)->findOneBy(["template" => self::SceneNewDay]);
+                if ($event === $subscription . "/" . self::SceneNewDay) {
+                    // We must not redirect if the current scene is already the new day - otherwise, the context below would have been called twice.
+                    $context = self::handleNavigationToNewDay($g, $context);
+                } else {
+                    $redirect = $g->getEntityManager()->getRepository(Scene::class)->findOneBy(["template" => self::SceneNewDay]);
+                }
             } else {
                 $g->getCharacter()->setProperty(self::CharacterPropertyIgnoreCatchAll, true);
             }
 
-            // redirects either to the new day or to a different target (like race selection)
-            $context->setDataField("redirect", $redirect);
-
-            if ($event === $subscription . "/" . self::SceneNewDay) {
-                $context = self::handleNavigationToNewDay($g, $context);
+            if ($redirect !== 0) {
+                // redirects either to the new day or to a different target (like race selection)
+                $context->setDataField("redirect", $redirect);
             }
         }
 
@@ -102,8 +105,6 @@ class Module implements ModuleInterface {
             self::HookAfterNewDay,
             new EventAfterNewDayData(["viewpoint" => $context->getDataField("viewpoint")])
         );
-
-        $context->setDataField("viewpoint", $hookData->get("viewpoint"));
 
         return $context;
     }
