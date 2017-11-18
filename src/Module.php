@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace LotGD\Module\NewDay;
 
 use DateTime;
+use Doctrine\Common\Util\Debug;
 use LotGD\Core\Game;
 use LotGD\Core\Events\EventContext;
 use LotGD\Core\Models\Scene;
@@ -62,6 +63,7 @@ class Module implements ModuleInterface {
             );
 
             $redirect = $hookData->get("redirect");
+
             if ($redirect === 0) {
                 $redirect = $g->getEntityManager()->getRepository(Scene::class)->findOneBy(["template" => self::SceneNewDay]);
             } else {
@@ -93,9 +95,15 @@ class Module implements ModuleInterface {
      */
     private static function handleNavigationToNewDay(Game $g, EventContext $context): EventContext
     {
-        // do everything for the new day.
         $g->getCharacter()->setProperty(self::CharacterPropertyLastNewDay, new DateTime());
         $g->getCharacter()->setProperty(self::CharacterPropertyNewDayPosition, self::PositionAfterNewDay);
+
+        $hookData = $g->getEventManager()->publish(
+            self::HookAfterNewDay,
+            new EventAfterNewDayData(["viewpoint" => $context->getDataField("viewpoint")])
+        );
+
+        $context->setDataField("viewpoint", $hookData->get("viewpoint"));
 
         return $context;
     }

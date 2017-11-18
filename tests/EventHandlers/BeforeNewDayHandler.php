@@ -11,6 +11,9 @@ use LotGD\Core\Models\Scene;
 class BeforeNewDayHandler implements EventHandler
 {
     public static function handleEvent(Game $g, EventContext $context): EventContext {
+        print($context->getEvent());
+        print("BRUTAL");
+
         // Get a new scene
         $redirect = $g->getEntityManager()->getRepository(Scene::class)->findOneBy(["template" => "lotgd/test/another"]);
         $context->setDataField("redirect", $redirect);

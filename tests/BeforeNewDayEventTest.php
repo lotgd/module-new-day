@@ -16,6 +16,9 @@ class BeforeNewDayEventTest extends ModuleTestCase
         $game = $this->g;
         $character = $this->getEntityManager()->getRepository(Character::class)->findById(2)[0];
         $game->setCharacter($character);
+
+        print("\n\nTEST OPENING\n");
+        define("USE_DEBUGGING", true);
         $v = $game->getViewpoint();
 
         // The scene should lead to a new day, except that EventHandlers/BeforeNewDayHandler should interfere
