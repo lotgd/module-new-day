@@ -3,12 +3,19 @@ declare(strict_types=1);
 
 namespace LotGD\Module\NewDay\Tests;
 
-use LotGD\Core\GameBuilder;
+
+use Doctrine\Common\Annotations\AnnotationRegistry;
+use Doctrine\ORM\Events as DoctrineEvents;
+use LotGD\Core\Doctrine\EntityPostLoadEventListener;
+use LotGD\Core\LibraryConfigurationManager;
+use LotGD\Core\ModelExtender;
+use LotGD\Core\Models\EventSubscription;
 use Monolog\Logger;
 use Monolog\Handler\NullHandler;
 
 use LotGD\Core\Configuration;
 use LotGD\Core\Game;
+use LotGD\Core\GameBuilder;
 use LotGD\Core\Tests\ModelTestCase;
 use LotGD\Core\Models\Module as ModuleModel;
 
@@ -19,7 +26,7 @@ class ModuleTestCase extends ModelTestCase
     const Library = 'lotgd/module-new-day';
     const RootNamespace = "LotGD\\Module\\NewDay\\";
 
-    protected $g;
+    public $g;
     protected $moduleModel;
 
     protected function getDataSet(): \PHPUnit_Extensions_Database_DataSet_YamlDataSet
@@ -46,6 +53,24 @@ class ModuleTestCase extends ModelTestCase
             ->withEntityManager($this->getEntityManager())
             ->withCwd(implode(DIRECTORY_SEPARATOR, [__DIR__, '..']))
             ->create();
+
+        // Add Event listener to entity manager
+        $dem = $this->getEntityManager()->getEventManager();
+        $dem->addEventListener([DoctrineEvents::postLoad], new EntityPostLoadEventListener($this->g));
+
+        // Run model extender
+        AnnotationRegistry::registerLoader("class_exists");
+
+        $modelExtender = new ModelExtender();
+        $libraryConfigurationManager = new LibraryConfigurationManager($this->g->getComposerManager(), getcwd());
+
+        foreach ($libraryConfigurationManager->getConfigurations() as $config) {
+            $modelExtensions = $config->getSubKeyIfItExists(["modelExtensions"]);
+
+            if ($modelExtensions) {
+                $modelExtender->addMore($modelExtensions);
+            }
+        }
 
         // Register and unregister before/after each test, since
         // handleEvent() calls may expect the module be registered (for example,

@@ -46,4 +46,4 @@ event_subscriptions:
     -
         pattern: "#h/lotgd/module-new-day/before#"
         class: "LotGD\\Module\\NewDay\\Tests\\EventHandlers\\BeforeNewDayHandler"
-        library: "lotgd/module-new-day"
+        library: "test"

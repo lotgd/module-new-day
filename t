@@ -1,4 +1,4 @@
 #!/bin/bash -ex
-phpunit tests/ModuleTest.php
-phpunit tests/BeforeNewDayEventTest.php
-phpunit tests/AfterNewDayEventTest.php
+vendor/bin/phpunit tests/ModuleTest.php
+vendor/bin/phpunit tests/BeforeNewDayEventTest.php
+vendor/bin/phpunit tests/AfterNewDayEventTest.php
