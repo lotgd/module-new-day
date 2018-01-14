@@ -22,8 +22,9 @@
         }
     ],
     "require": {
-        "lotgd/core": "dev-master as v0.3.3-alpha",
-        "lotgd/module-village": "dev-master as v0.3.3-alpha"
+        "lotgd/core": "^0.4.0-alpha",
+        "lotgd/module-village": "^0.4.0-alpha"
+
     },
     "require-dev": {
         "phpunit/phpunit": "^5.0",
