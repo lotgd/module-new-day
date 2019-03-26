@@ -158,7 +158,6 @@ class Module implements ModuleInterface {
             $g->getEntityManager()->persist($newDayScene);
             $g->getEntityManager()->persist($restorationScene);
             $g->getEntityManager()->persist($continueScene);
-            $g->getEntityManager()->flush();
 
             $module->setProperty(self::ModulePropertySceneId, [
                 self::SceneNewDay => $newDayScene->getId(),

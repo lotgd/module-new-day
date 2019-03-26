@@ -15,10 +15,11 @@ class AfterNewDayEventTest extends ModuleTestCase
     {
         /** @var $game Game */
         $game = $this->g;
-        $character = $this->getEntityManager()->getRepository(Character::class)->findById(2)[0];
+        $character = $this->getEntityManager()->getRepository(Character::class)->find("10000000-0000-0000-0000-000000000003");
         $game->setCharacter($character);
         $v = $game->getViewpoint();
 
         # Debug::dump($v);
+        $this->assertSame($character->getMaxHealth()-1, $character->getHealth());
     }
 }

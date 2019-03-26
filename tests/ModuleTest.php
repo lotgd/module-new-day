@@ -55,7 +55,7 @@ class ModuleTest extends ModuleTestCase
 
         // The Module expects to have a character present, so we need to set one.
         $game = $this->g;
-        $character = $this->getEntityManager()->getRepository(Character::class)->findById(1)[0];
+        $character = $this->getEntityManager()->getRepository(Character::class)->find("10000000-0000-0000-0000-000000000001");
         $game->setCharacter($character);
 
         Module::handleEvent($this->g, $context);
@@ -65,7 +65,7 @@ class ModuleTest extends ModuleTestCase
     {
         /** @var $game Game */
         $game = $this->g;
-        $character = $this->getEntityManager()->getRepository(Character::class)->findById(1)[0];
+        $character = $this->getEntityManager()->getRepository(Character::class)->find("10000000-0000-0000-0000-000000000001");
         $game->setCharacter($character);
         $v = $game->getViewpoint();
 

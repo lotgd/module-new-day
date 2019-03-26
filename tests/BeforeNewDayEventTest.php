@@ -17,7 +17,7 @@ class BeforeNewDayEventTest extends ModuleTestCase
     {
         /** @var Game $game */
         $game = $this->g;
-        $character = $this->getEntityManager()->getRepository(Character::class)->findById(2)[0];
+        $character = $this->getEntityManager()->getRepository(Character::class)->find("10000000-0000-0000-0000-000000000002");
         $game->setCharacter($character);
 
         define("USE_DEBUGGING", true);

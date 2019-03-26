@@ -1,6 +1,6 @@
 characters:
     -
-        id: 1
+        id: "10000000-0000-0000-0000-000000000001"
         name: "Gandalf"
         displayName: "Gandalf the Grey"
         maxHealth: 100
@@ -9,12 +9,12 @@ characters:
         deletedAt:
 scenes:
     -
-        id: 1
+        id: "20000000-0000-0000-0000-000000000001"
         title: "Village"
         description: "You arrive in a village."
         template: 'lotgd/module-village/village'
     -
-        id: 2
+        id: "20000000-0000-0000-0000-000000000002"
         title: "Another Scene"
         description: "You arrive at another scene."
         template: "lotgd/test/another"
@@ -23,8 +23,8 @@ scene_connections:
         directionality: 0
         outgoingConnectionGroupName:
         incomingConnectionGroupName:
-        outgoingScene: 2
-        incomingScene: 1
+        outgoingScene: "20000000-0000-0000-0000-000000000002"
+        incomingScene: "20000000-0000-0000-0000-000000000001"
 modules:
     -
         library: 'lotgd/module-village'

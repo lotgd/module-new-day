@@ -18,12 +18,14 @@
     "repositories": [
         {
             "type": "composer",
-            "url": "https://code.lot.gd"
+            "url": "https://raw.githubusercontent.com/lotgd/packages/master/build/packages.json"
         }
     ],
+    "minimum-stability": "dev",
+    "prefer-stable" : true,
     "require": {
-        "lotgd/core": "^0.4.0-alpha",
-        "lotgd/module-village": "^0.4.0-alpha"
+        "lotgd/core": ">=0.5",
+        "lotgd/module-village": ">=0.4.0-alpha"
 
     },
     "require-dev": {
