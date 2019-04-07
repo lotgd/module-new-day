@@ -25,7 +25,7 @@
     "prefer-stable" : true,
     "require": {
         "lotgd/core": ">=0.5",
-        "lotgd/module-village": ">=0.4.0-alpha"
+        "lotgd/module-village": ">=0.5.0"
 
     },
     "require-dev": {
