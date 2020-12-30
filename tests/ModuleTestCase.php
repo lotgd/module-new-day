@@ -33,49 +33,19 @@ class ModuleTestCase extends ModelTestCase
     public $g;
     protected $moduleModel;
 
-    protected function getDataSet(): array
+    public function getDataSet(): array
     {
         return Yaml::parseFile(implode(DIRECTORY_SEPARATOR, [__DIR__, 'datasets', $this->dataset . '.yml']));
+    }
+
+    public function getCwd(): string
+    {
+        return implode(DIRECTORY_SEPARATOR, [__DIR__, '..']);
     }
 
     public function setUp(): void
     {
         parent::setUp();
-
-        $this->getEntityManager()->flush();
-        $this->getEntityManager()->clear();
-
-        // Make an empty logger for these tests. Feel free to change this
-        // to place log messages somewhere you can easily find them.
-        $logger  = new Logger('test');
-        #$logger->pushHandler(new StreamHandler('php://stdout'));
-        $logger->pushHandler(new NullHandler());
-
-        // Create a Game object for use in these tests.
-        $this->g = (new GameBuilder())
-            ->withConfiguration(new Configuration(getenv('LOTGD_TESTS_CONFIG_PATH')))
-            ->withLogger($logger)
-            ->withEntityManager($this->getEntityManager())
-            ->withCwd(implode(DIRECTORY_SEPARATOR, [__DIR__, '..']))
-            ->create();
-
-        // Add Event listener to entity manager
-        $dem = $this->getEntityManager()->getEventManager();
-        $dem->addEventListener([DoctrineEvents::postLoad], new EntityPostLoadEventListener($this->g));
-
-        // Run model extender
-        AnnotationRegistry::registerLoader("class_exists");
-
-        $modelExtender = new ModelExtender();
-        $libraryConfigurationManager = new LibraryConfigurationManager($this->g->getComposerManager(), getcwd());
-
-        foreach ($libraryConfigurationManager->getConfigurations() as $config) {
-            $modelExtensions = $config->getSubKeyIfItExists(["modelExtensions"]);
-
-            if ($modelExtensions) {
-                $modelExtender->addMore($modelExtensions);
-            }
-        }
 
         // Register and unregister before/after each test, since
         // handleEvent() calls may expect the module be registered (for example,
