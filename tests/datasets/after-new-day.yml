@@ -12,12 +12,16 @@ scenes:
         id: "20000000-0000-0000-0000-000000000001"
         title: "Village"
         description: "You arrive in a village."
-        template: 'lotgd/module-village/village'
+        template: "LotGD\\Module\\Village\\SceneTemplates\\VillageScene"
     -
         id: "20000000-0000-0000-0000-000000000002"
         title: "Another Scene"
         description: "You arrive at another scene."
-        template: "lotgd/test/another"
+scene_templates:
+    -
+        class: "LotGD\\Module\\Village\\SceneTemplates\\VillageScene"
+        module: "lotgd/module-village"
+        userAssignable: false
 scene_connections:
     -
         directionality: 0

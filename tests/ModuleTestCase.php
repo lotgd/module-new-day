@@ -10,6 +10,9 @@ use LotGD\Core\Doctrine\EntityPostLoadEventListener;
 use LotGD\Core\LibraryConfigurationManager;
 use LotGD\Core\ModelExtender;
 use LotGD\Core\Models\EventSubscription;
+use Monolog\Handler\PHPConsoleHandler;
+use Monolog\Handler\StreamHandler;
+use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use Monolog\Handler\NullHandler;
 
@@ -20,6 +23,7 @@ use LotGD\Core\Tests\ModelTestCase;
 use LotGD\Core\Models\Module as ModuleModel;
 
 use LotGD\Module\NewDay\Module;
+use Symfony\Component\Yaml\Yaml;
 
 class ModuleTestCase extends ModelTestCase
 {
@@ -29,12 +33,12 @@ class ModuleTestCase extends ModelTestCase
     public $g;
     protected $moduleModel;
 
-    protected function getDataSet(): \PHPUnit_Extensions_Database_DataSet_YamlDataSet
+    protected function getDataSet(): array
     {
-        return new \PHPUnit_Extensions_Database_DataSet_YamlDataSet(implode(DIRECTORY_SEPARATOR, [__DIR__, 'datasets', $this->dataset . '.yml']));
+        return Yaml::parseFile(implode(DIRECTORY_SEPARATOR, [__DIR__, 'datasets', $this->dataset . '.yml']));
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -44,6 +48,7 @@ class ModuleTestCase extends ModelTestCase
         // Make an empty logger for these tests. Feel free to change this
         // to place log messages somewhere you can easily find them.
         $logger  = new Logger('test');
+        #$logger->pushHandler(new StreamHandler('php://stdout'));
         $logger->pushHandler(new NullHandler());
 
         // Create a Game object for use in these tests.
@@ -83,17 +88,17 @@ class ModuleTestCase extends ModelTestCase
         $this->g->getEntityManager()->clear();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->g->getEntityManager()->flush();
         $this->g->getEntityManager()->clear();
-
-        parent::tearDown();
 
         Module::onUnregister($this->g, $this->moduleModel);
         $m = $this->getEntityManager()->getRepository(ModuleModel::class)->find(self::Library);
         if ($m) {
             $m->delete($this->getEntityManager());
         }
+
+        parent::tearDown();
     }
 }

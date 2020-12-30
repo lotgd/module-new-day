@@ -4,13 +4,16 @@ declare(strict_types=1);
 namespace LotGD\Module\NewDay;
 
 use DateTime;
-use Doctrine\Common\Util\Debug;
 use LotGD\Core\Game;
 use LotGD\Core\Events\EventContext;
 use LotGD\Core\Models\Scene;
+use LotGD\Core\Models\SceneTemplate;
 use LotGD\Core\Models\Viewpoint;
 use LotGD\Core\Module as ModuleInterface;
 use LotGD\Core\Models\Module as ModuleModel;
+use LotGD\Module\NewDay\SceneTemplates\ContinueScene;
+use LotGD\Module\NewDay\SceneTemplates\NewDayScene;
+use LotGD\Module\NewDay\SceneTemplates\RestorationScene;
 
 const MODULE = "lotgd/module-new-day";
 
@@ -19,7 +22,6 @@ class Module implements ModuleInterface {
     const SceneNewDay = MODULE . "/newDay";
     const SceneRestoration = MODULE ."/restoration";
     const SceneContinue = MODULE . "/continue";
-    const ModulePropertySceneId = MODULE ."/sceneIds";
     const CharacterPropertyIgnoreCatchAll = MODULE . "/ignoreCatchAll";
     const CharacterPropertyLastNewDay = MODULE . "/lastNewDay";
     const CharacterPropertyNewDayPosition = MODULE . "/position";
@@ -69,7 +71,7 @@ class Module implements ModuleInterface {
                     // We must not redirect if the current scene is already the new day - otherwise, the context below would have been called twice.
                     $context = self::handleNavigationToNewDay($g, $context);
                 } else {
-                    $redirect = $g->getEntityManager()->getRepository(Scene::class)->findOneBy(["template" => self::SceneNewDay]);
+                    $redirect = $g->getEntityManager()->getRepository(Scene::class)->findOneBy(["template" => NewDayScene::class]);
                 }
             } else {
                 $g->getCharacter()->setProperty(self::CharacterPropertyIgnoreCatchAll, true);
@@ -119,6 +121,7 @@ class Module implements ModuleInterface {
     {
         // restore the old viewpoint
         $context->getDataField("viewpoint")->changeFromSnapshot(
+            $g->getEntityManager(),
             $g->getCharacter()->getProperty(self::CharacterPropertyViewpointSnapshot)
         );
 
@@ -149,70 +152,75 @@ class Module implements ModuleInterface {
 
     public static function onRegister(Game $g, ModuleModel $module)
     {
-        // Register new day scene and "restoration" scene.
-        $sceneIds = $module->getProperty(self::ModulePropertySceneId);
+        [$newDayScene, $restorationScene, $continueScene] = self::getScenes();
 
-        if ($sceneIds === null) {
-            [$newDayScene, $restorationScene, $continueScene] = self::getScenes();
+        $em = $g->getEntityManager();
 
-            $g->getEntityManager()->persist($newDayScene);
-            $g->getEntityManager()->persist($restorationScene);
-            $g->getEntityManager()->persist($continueScene);
+        $em->persist($newDayScene);
+        $em->persist($newDayScene->getTemplate());
+        $em->persist($restorationScene);
+        $em->persist($restorationScene->getTemplate());
+        $em->persist($continueScene);
+        $em->persist($continueScene->getTemplate());
 
-            $module->setProperty(self::ModulePropertySceneId, [
-                self::SceneNewDay => $newDayScene->getId(),
-                self::SceneRestoration => $restorationScene->getId(),
-                self::SceneContinue => $continueScene->getId()
-            ]);
+        // don't flush.
 
-            // logging
-            $g->getLogger()->addNotice(sprintf(
-                "%s: Adds scenes (newday: %s, restoration: %s)",
-                self::Module,
-                $newDayScene->getId(),
-                $restorationScene->getId(),
-                $continueScene->getId()
-            ));
-        }
+        // logging
+        $g->getLogger()->notice(sprintf(
+            "%s: Adds scenes (newday: %s, restoration: %s)",
+            self::Module,
+            $newDayScene->getId(),
+            $restorationScene->getId(),
+            $continueScene->getId()
+        ));
     }
 
     public static function onUnregister(Game $g, ModuleModel $module)
     {
-        // Unregister them again.
-        $sceneIds = $module->getProperty(self::ModulePropertySceneId);
+        // delete all scenes using "New Day" as the template (it is not user assignable)
+        $scenes = $g->getEntityManager()->getRepository(Scene::class)->findBy([
+            "template" => [
+                NewDayScene::class,
+                ContinueScene::class,
+                RestorationScene::class,
+            ]
+        ]);
 
-        if ($sceneIds !== null) {
-            // delete village
-            $g->getEntityManager()->getRepository(Scene::class)->find($sceneIds[self::SceneNewDay])->delete($g->getEntityManager());
-            $g->getEntityManager()->getRepository(Scene::class)->find($sceneIds[self::SceneRestoration])->delete($g->getEntityManager());
-            $g->getEntityManager()->getRepository(Scene::class)->find($sceneIds[self::SceneContinue])->delete($g->getEntityManager());
+        $em = $g->getEntityManager();
 
-            // set property to null
-            $module->setProperty(self::ModulePropertySceneId, null);
+        foreach ($scenes as $scene) {
+            $template = $scene->getTemplate();
+
+            // We must remove the template and the scene.
+            $em->remove($template);
+            $em->remove($scene);
         }
+
+        $em->flush();
     }
 
     protected static function getScenes(): array
     {
         $newDayScene = Scene::create([
-            "template" => self::SceneNewDay,
+            "template" => new SceneTemplate(NewDayScene::class, MODULE),
             "title" => "It is a new day!",
             "description" => "You open your eyes to discover that a new day has been bestowed upon you. "
                 ."You feel refreshed enough to take on the world!"
         ]);
 
         $restorationScene = Scene::create([
-            "template" => self::SceneRestoration,
+            "template" => new SceneTemplate(RestorationScene::class, MODULE),
             "title" => "Continue",
             "description" => "You should not be able to see this text if everything works, this scene should restore your viewpoint."
         ]);
 
         $continueScene = Scene::create([
-            "template" => self::SceneContinue,
+            "template" => new SceneTemplate(ContinueScene::class, MODULE),
             "title" => "Continue",
             "description" => "You should not be able to see this text if everything works, this is for internal work only."
         ]);
 
+        $newDayScene->getTemplate()->setUserAssignable(false);
         $newDayScene->connect($restorationScene, Scene::Unidirectional);
 
         return [$newDayScene, $restorationScene, $continueScene];

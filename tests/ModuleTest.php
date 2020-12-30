@@ -19,6 +19,9 @@ class ModuleTest extends ModuleTestCase
     // reflects all columns in the core's models of characters, scenes and modules.
     // This is pretty fragile since every time we add a column, everyone's tests
     // will break.
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testUnregister()
     {
         Module::onUnregister($this->g, $this->moduleModel);
@@ -32,17 +35,15 @@ class ModuleTest extends ModuleTestCase
             'characters', 'scenes', 'modules', 'scene_connections', "module_properties"
         ];
 
-        $after = $this->getConnection()->createDataSet($tableList);
-        $before = $this->getDataSet();
-
-        foreach($tableList as $table) {
-            $this->assertSame($before->getTable($table)->getRowCount(), $after->getTable($table)->getRowCount());
-        }
+        $this->assertDataWasKeptIntact($tableList);
 
         // Since tearDown() contains an onUnregister() call, this also tests
         // double-unregistering, which should be properly supported by modules.
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testHandleUnknownEvent()
     {
         // Always good to test a non-existing event just to make sure nothing happens :).
