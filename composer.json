@@ -1,9 +1,8 @@
 {
     "name": "lotgd/module-new-day",
-    "description": "A new day module.",
+    "description": "This module adds in a new day, with tools and hooks for other modules to add themselves in.",
     "type": "lotgd-module",
-    "license": "AGPL-3.0",
-    "version": "0.6.0",
+    "license": "AGPL-3.0-or-later",
     "authors": [
         {
             "name": "Basilius Sauter",
@@ -17,8 +16,6 @@
         }
     },
     "repositories": [
-        {"type": "path", "url": "../core"},
-        {"type": "path", "url": "../module-village"},
         {
             "type": "composer",
             "url": "https://raw.githubusercontent.com/lotgd/packages/master/build/packages.json"
@@ -27,8 +24,8 @@
     "minimum-stability": "dev",
     "prefer-stable" : true,
     "require": {
-        "lotgd/core": ">=0.5",
-        "lotgd/module-village": ">=0.5.0"
+        "lotgd/core": "^0.6.0-alpha",
+        "lotgd/module-village": "^0.6"
 
     },
     "require-dev": {

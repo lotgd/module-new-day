@@ -35,16 +35,22 @@ class Module implements ModuleInterface {
 
     public static function handleEvent(Game $g, EventContext $context): EventContext
     {
+        $logger = $g->getLogger();
         $subscription = "h/lotgd/core/navigate-to";
         $event = $context->getEvent();
 
         $position = $g->getCharacter()->getProperty(self::CharacterPropertyNewDayPosition, self::PositionNone);
+        $logger->debug("ModuleNewDay: New day position is $position");
 
         if ($event === $subscription . "/" . self::SceneContinue) {
             $skip = false;
             $g->getCharacter()->setProperty(self::CharacterPropertyIgnoreCatchAll, false);
+
+            $logger->debug("ModuleNewDay: ContinueScene is accessed, will not skip for sure.");
         } else {
             $skip = $g->getCharacter()->getProperty(self::CharacterPropertyIgnoreCatchAll, false);
+
+            $logger->debug("ModuleNewDay: Skip is " . ($skip ? "true" : "false"));
         }
 
         if ($skip) {
@@ -67,6 +73,8 @@ class Module implements ModuleInterface {
             $redirect = $hookData->get("redirect");
 
             if ($redirect === 0) {
+                $logger->debug("ModuleNewDay: No redirect");
+
                 if ($event === $subscription . "/" . self::SceneNewDay) {
                     // We must not redirect if the current scene is already the new day - otherwise, the context below would have been called twice.
                     $context = self::handleNavigationToNewDay($g, $context);
@@ -74,6 +82,8 @@ class Module implements ModuleInterface {
                     $redirect = $g->getEntityManager()->getRepository(Scene::class)->findOneBy(["template" => NewDayScene::class]);
                 }
             } else {
+                $logger->debug("ModuleNewDay: Redirect to " . ($redirect===0?$redirect->getId():0));
+
                 $g->getCharacter()->setProperty(self::CharacterPropertyIgnoreCatchAll, true);
             }
 
@@ -84,9 +94,9 @@ class Module implements ModuleInterface {
         }
 
         if ($position === 2) {
-            if ($event === $subscription . "/" . self::SceneRestoration) {
+            //if ($event === $subscription . "/" . self::SceneRestoration) {
                 $context = self::handleNavigationToRestorationPoint($g, $context);
-            }
+            //}
         }
 
         return $context;
@@ -201,24 +211,9 @@ class Module implements ModuleInterface {
 
     protected static function getScenes(): array
     {
-        $newDayScene = Scene::create([
-            "template" => new SceneTemplate(NewDayScene::class, MODULE),
-            "title" => "It is a new day!",
-            "description" => "You open your eyes to discover that a new day has been bestowed upon you. "
-                ."You feel refreshed enough to take on the world!"
-        ]);
-
-        $restorationScene = Scene::create([
-            "template" => new SceneTemplate(RestorationScene::class, MODULE),
-            "title" => "Continue",
-            "description" => "You should not be able to see this text if everything works, this scene should restore your viewpoint."
-        ]);
-
-        $continueScene = Scene::create([
-            "template" => new SceneTemplate(ContinueScene::class, MODULE),
-            "title" => "Continue",
-            "description" => "You should not be able to see this text if everything works, this is for internal work only."
-        ]);
+        $newDayScene = NewDayScene::getScaffold();
+        $restorationScene = RestorationScene::getScaffold();
+        $continueScene = ContinueScene::getScaffold();
 
         $newDayScene->getTemplate()->setUserAssignable(false);
         $newDayScene->connect($restorationScene, Scene::Unidirectional);

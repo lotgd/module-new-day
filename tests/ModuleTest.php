@@ -19,9 +19,6 @@ class ModuleTest extends ModuleTestCase
     // reflects all columns in the core's models of characters, scenes and modules.
     // This is pretty fragile since every time we add a column, everyone's tests
     // will break.
-    /**
-     * @doesNotPerformAssertions
-     */
     public function testUnregister()
     {
         Module::onUnregister($this->g, $this->moduleModel);
@@ -35,15 +32,12 @@ class ModuleTest extends ModuleTestCase
             'characters', 'scenes', 'modules', 'scene_connections', "module_properties"
         ];
 
-        $this->assertDataWasKeptIntact($tableList);
+        $this->assertDataWasKeptIntact($this->getDataSet(), $this->getConnection()[0], $tableList);
 
         // Since tearDown() contains an onUnregister() call, this also tests
         // double-unregistering, which should be properly supported by modules.
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
     public function testHandleUnknownEvent()
     {
         // Always good to test a non-existing event just to make sure nothing happens :).
@@ -59,7 +53,9 @@ class ModuleTest extends ModuleTestCase
         $character = $this->getEntityManager()->getRepository(Character::class)->find("10000000-0000-0000-0000-000000000001");
         $game->setCharacter($character);
 
-        Module::handleEvent($this->g, $context);
+        $returnedContext = Module::handleEvent($this->g, $context);
+
+        $this->assertSame($context, $returnedContext);
     }
 
     public function testNavigateToEvent()
