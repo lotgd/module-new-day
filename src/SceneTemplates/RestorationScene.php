@@ -18,7 +18,7 @@ class RestorationScene implements SceneTemplateInterface
     public static function getScaffold(): Scene
     {
         return new Scene(
-            title: "Restore",
+            title: "Continue",
             description: "You should not be able to see this text if everything works, "
                 ."this scene should restore your viewpoint.",
             template: new SceneTemplate(class: self::class, module: Module::Module),

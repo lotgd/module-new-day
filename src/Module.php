@@ -57,7 +57,7 @@ class Module implements ModuleInterface {
             return $context;
         }
 
-        if ($position === 0 and substr($event, 0, strlen($subscription)) === $subscription) {
+        if ($position === 0 and str_starts_with($event, $subscription)) {
             $context = self::handleNavigationToAny($g, $context);
 
             // We must fetch the position again since it could change within handleNavigationToAny, but doesn't need to.
@@ -152,6 +152,9 @@ class Module implements ModuleInterface {
         $lastNewDay = $g->getCharacter()->getProperty(self::CharacterPropertyLastNewDay);
 
         if ($lastNewDay === null or $g->getTimeKeeper()->isNewDay($lastNewDay)) {
+            $reason = $lastNewDay === null ? "No last new day" : "TimeKeeper says its time";
+            $g->getLogger()->debug("ModuleNewDay: Prepare new day. Reason: $reason");
+
             $viewpointSnapshot = $context->getDataField("viewpoint")->getSnapshot();
             $g->getCharacter()->setProperty(self::CharacterPropertyViewpointSnapshot, $viewpointSnapshot);
             $g->getCharacter()->setProperty(self::CharacterPropertyNewDayPosition, self::PositionBeforeNewDay);
